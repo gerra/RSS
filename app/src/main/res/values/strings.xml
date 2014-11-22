@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">lesson7</string>
+    <string name="feed_echo_msk">http://echo.msk.ru/interview/rss-fulltext.xml</string>
+    <string name="refresh">refresh</string>
+    <string name="clear">clear</string>
+</resources>
