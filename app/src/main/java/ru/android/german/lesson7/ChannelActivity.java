@@ -14,6 +14,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
+
+import ru.android.german.lesson7.DataClasses.DataManager;
+import ru.android.german.lesson7.DataClasses.FeedContentProvider;
 
 /**
  * Created by german on 10.11.14.
@@ -32,6 +36,8 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        //cursor.close();
+        cursor = DataManager.getAllFeedsFromChannel(channelURL);
         adapter.swapCursor(cursor);
     }
 
@@ -60,7 +66,15 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
                 android.R.id.text1,
                 android.R.id.text2
         };
-        adapter = new SimpleCursorAdapter(this, layoutID, null, from, to, 0);
+
+        Cursor tmp = DataManager.getAllFeedsFromChannel(channelURL);
+        Toast.makeText(this, String.valueOf(tmp.getCount()) + " feeds", Toast.LENGTH_SHORT).show();
+        tmp.close();
+
+        adapter = new SimpleCursorAdapter(this, layoutID,
+                //DataManager.getAllFeedsFromChannel(channelURL),
+                null,
+                from, to, 0);
 
         listView = (ListView)this.findViewById(R.id.listView);
         listView.setAdapter(adapter);
@@ -79,7 +93,8 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
     }
 
     private void clearFeeds() {
-        getContentResolver().delete(FeedContentProvider.FEEDS_CONTENT_URI, null, null);
+        //getContentResolver().delete(FeedContentProvider.FEEDS_CONTENT_URI, null, null);
+        DataManager.deleteAllFeedsFromChannel(channelURL);
     }
 
     private void refreshFeeds() {

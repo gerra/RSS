@@ -8,24 +8,29 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import ru.android.german.lesson7.DataClasses.DataManager;
+import ru.android.german.lesson7.DataClasses.Feed;
+import ru.android.german.lesson7.DataClasses.FeedContentProvider;
+
 /**
  * Created by german on 10.11.14.
  */
 public class MyHandler extends DefaultHandler {
-    ContentResolver contentResolver;
-
     int type;
 
     boolean inItem;
     boolean inTitle;
     boolean inLink;
-    ContentValues cv;
+
+    Feed feed;
 
     String curString;
     boolean saveText = false;
 
-    public MyHandler(ContentResolver contentResolver) {
-        this.contentResolver = contentResolver;
+    int channelID;
+
+    public MyHandler(String channel) {
+        channelID = DataManager.getChannelID(channel);
     }
 
     @Override
@@ -34,7 +39,8 @@ public class MyHandler extends DefaultHandler {
         saveText = false;
         if (qName.equals("item") || qName.equals("entry")) {
                 inItem = true;
-                cv = new ContentValues();
+                feed = new Feed();
+                feed.setChannelID(channelID);
                 if (qName.equals("item")) {
                     type = 1;
                 } else {
@@ -49,7 +55,7 @@ public class MyHandler extends DefaultHandler {
             curString = new String();
             saveText = true;
             if (type == 2) {
-                cv.put(FeedContentProvider.FEED_LINK, attributes.getValue("href"));
+                feed.setLink(attributes.getValue("href"));
                 saveText = false;
             }
         }
@@ -58,16 +64,16 @@ public class MyHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equals("item") || qName.equals("entry")) {
-            Uri _uri = contentResolver.insert(FeedContentProvider.FEEDS_CONTENT_URI, cv);
+            DataManager.addFeed(feed);
 //            System.out.println(_uri.toString());
             inItem = false;
         } else if (qName.equals("title") && inTitle) {
             curString = curString.trim();
-            cv.put(FeedContentProvider.FEED_TITLE, curString);
+            feed.setTitle(curString);
             inTitle = false;
         } else if (qName.equals("link") && type == 1 && inLink) {
             curString = curString.trim();
-            cv.put(FeedContentProvider.FEED_LINK, curString);
+            feed.setLink(curString);
             inLink = false;
         }
     }
@@ -76,7 +82,6 @@ public class MyHandler extends DefaultHandler {
     public void characters(char[] ch, int start, int length) throws SAXException {
         String tmp = new String(ch, start, length);
         if (saveText) {
-//            System.out.println(tmp);
             curString += tmp;
         }
     }

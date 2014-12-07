@@ -20,7 +20,7 @@
 
         <service android:name="ru.android.german.lesson7.FeedLoader"></service>
 
-        <provider android:name=".FeedContentProvider"
+        <provider android:name=".DataClasses.FeedContentProvider"
             android:authorities="ru.android.german.lesson7">
         </provider>
 
